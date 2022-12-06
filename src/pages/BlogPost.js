@@ -83,7 +83,7 @@ const BlogPost = (props) => {
         if (addedPost || updatedPost ||deletedPost) {
             actions.getPosts();
         }
-    }, [addedPost, updatedPost, deletedPost])
+    }, [addedPost, updatedPost, deletedPost, actions])
     
     return (
         <Grid
