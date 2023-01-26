@@ -1,6 +1,9 @@
-import React from 'react';
-import { TextField, Button } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles';
+import React from 'react'
+import { 
+    Button,
+    TextField 
+} from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles({
     root: {
@@ -9,11 +12,14 @@ const useStyles = makeStyles({
         flexDirection: 'column',
         justifyContent: 'center'
     }
-});
+})
 
-const AddPost = (props) => {
-    const classes = useStyles();
-    const { state, handleAddPost, handleStateChange } = props;
+const AddPost = ({ 
+    handleAddPost, 
+    handleStateChange,
+    state
+}) => {
+    const classes = useStyles()
 
     return (
         <div className={classes.root}>
@@ -23,8 +29,8 @@ const AddPost = (props) => {
                 onChange={(e) => handleStateChange({
                     ...state,
                     text: e.target.value
-                })} />
-            <br />
+                })} 
+            />
             <Button
                 disabled={state.text === ''}
                 onClick={handleAddPost}
@@ -35,4 +41,4 @@ const AddPost = (props) => {
     )
 }
 
-export default AddPost;
+export default AddPost

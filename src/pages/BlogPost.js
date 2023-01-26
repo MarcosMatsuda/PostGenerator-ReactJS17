@@ -1,147 +1,123 @@
-import React, { useEffect, useState } from 'react';
-import { connect } from "react-redux";
-import { v4 as uuidv4 } from 'uuid';
-import { Grid } from '@material-ui/core';
+import React, { useEffect, useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { v4 as uuidv4 } from 'uuid'
+import { Grid } from '@material-ui/core'
+import { 
+  addPost, 
+  fetchPosts 
+} from '../store/posts/ducks'
 
-import * as actionType from "../redux/actions";
-import AddPost from "../components/AddPost";
-import Post from '../components/Post';
-import UpdatePostDialog from '../components/UpdatePost';
+import AddPost from "../components/AddPost"
+import Post from '../components/Post'
+import UpdatePostDialog from '../components/UpdatePost'
 
-const BlogPost = (props) => {
-    const { posts, addedPost, deletedPost, updatedPost,  actions } = props;
+const BlogPost = () => {
+  const dispatch = useDispatch()
 
-    const [state, setState] = useState({
-        text: ''
-    });
+  const posts = useSelector((state) => state.posts)
 
-    const [openDialog, setOpenDialog] = useState({
-        open: false,
-        post: {}
-    });
+  const [state, setState] = useState({text: ''})
 
-    const handleCloseDialog = () => {
-        setOpenDialog({
-            ...openDialog,
-            open: false
-        });
-    };
+  const [openDialog, setOpenDialog] = useState({
+    open: false,
+    post: {}
+  })
 
-    const handleOpenDialog = (post) => {
-        setOpenDialog({
-            open: true,
-            post
-        })
-    };
+  const handleCloseDialog = () => {
+    setOpenDialog({
+      ...openDialog,
+      open: false
+    })
+  }
 
-    const handleOpenDialogPostChange = (value) => {
-        setOpenDialog({
-            ...openDialog,
-            post: {
-                ...openDialog.post,
-                text: value
-            }
-        })
-    };
+  const handleOpenDialog = (post) => {
+    setOpenDialog({
+      open: true,
+      post
+    })
+  }
 
-    const handleAddPost = () => {
-        const _id = uuidv4();
-        console.log(_id);
-        const post = {
-            id: _id,
-            text: state.text
-        }
-        actions.addPost(post);
+  const handleOpenDialogPostChange = (value) => {
+    setOpenDialog({
+      ...openDialog,
+      post: {
+        ...openDialog.post,
+        text: value
+      }
+    })
+  }
 
-        cleanState();
-    };
+  const handleAddPost = () => {
+    const _id = uuidv4()
 
-    const handleSavePost = () => {
+    const post = {
+      id: _id,
+      text: state.text
+    }
+    dispatch(addPost(post))
 
-        actions.updatePost(openDialog.post);
-        setOpenDialog({
-            ...openDialog,
-            open: false
-        });
-    };
+    cleanState()
+  }
 
-    const handleDeletePost = (id) => {
-        actions.deletePost(id);
-    };
+  const handleSavePost = () => {
+    // dispatch(updatePost(openDialog.post))
+    // setOpenDialog({
+    //     ...openDialog,
+    //     open: false
+    // })
+  }
 
-    const cleanState = () => {
-        setState({
-            text: ''
-        })
-    };
+  const handleDeletePost = (id) => {
+    // dispatch(deletePost(id))
+  }
 
-    useEffect(() => {
-        actions.getPosts();
-    }, []);
+  const cleanState = () => {
+    setState({text: ''})
+  }
 
-    useEffect(() => {
-        if (addedPost || updatedPost ||deletedPost) {
-            actions.getPosts();
-        }
-    }, [addedPost, updatedPost, deletedPost, actions])
-    
-    return (
-        <Grid
-            container
-            direction="column"
-            alignItems="center"
-            justify="center"
-        >
-            <Grid item xs={12}>
-                <AddPost
-                    state={state}
-                    handleAddPost={handleAddPost}
-                    handleStateChange={setState}
-                />
-                {posts && posts.map((post) =>
-                    <Post
-                        key={post.id}
-                        post={post}
-                        handleOpen={handleOpenDialog}
-                        handleDelete={handleDeletePost}
-                    />
-                )}
 
-            </Grid>
-            <UpdatePostDialog
-                openDialog={openDialog}
-                handleClose={handleCloseDialog}
-                handleSave={handleSavePost}
-                handlePostChange={handleOpenDialogPostChange}
+  useEffect(() => {
+    // dispatch(fetchPosts())
+  }, [])
+
+  // useEffect(() => {
+  //     if (addedPost || updatedPost ||deletedPost) {
+  //         dispatch(getPosts())
+  //     }
+  // }, [addedPost, updatedPost, deletedPost, actions])
+          
+  return (
+    <Grid
+      container
+      direction="column"
+      alignItems="center"
+      center
+    >
+        <Grid item xs={12}>
+          <AddPost
+            state={state}
+            handleAddPost={handleAddPost}
+            handleStateChange={setState}
+          />
+          {posts.error ? (<p>{posts.error}</p>) : null}
+          {posts.isLoading ? (<p>Carregando</p>) : null}
+          {posts?.data && posts.data.map((post) =>
+            <Post
+              key={post.id}
+              post={post}
+              handleOpen={handleOpenDialog}
+              handleDelete={handleDeletePost}
             />
+          )}
         </Grid>
-    )
+        <UpdatePostDialog
+          openDialog={openDialog}
+          handleClose={handleCloseDialog}
+          handleSave={handleSavePost}
+          handlePostChange={handleOpenDialogPostChange}
+        />
+    </Grid>
+  )
 }
 
-const mapStateToProps = (state) => {
-    return ({
-        posts: state.getPosts.posts,
-        addedPost: state.addPost.post,
-        deletedPost: state.deletePost.post,
-        updatedPost: state.updatePost.post
-    })
-};
-
-const mapDispatchToProps = (dispatch) => ({
-    actions: {
-        getPosts: () => {
-            dispatch(actionType.getPosts());
-        },
-        addPost: (payload) => {
-            dispatch(actionType.addPost(payload));
-        },
-        deletePost: (payload) => {
-            dispatch(actionType.deletePost(payload));
-        },
-        updatePost: (payload) => {
-            dispatch(actionType.updatePost(payload));
-        }
-    },
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(BlogPost);
+export default BlogPost

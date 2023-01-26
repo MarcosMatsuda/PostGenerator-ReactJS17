@@ -1,9 +1,9 @@
 import Reactotron from './../ReactotronConfig'
 import { createStore, applyMiddleware, compose } from "redux";
 import createSagaMiddleware from "redux-saga";
-import rootReducer from "./reducers/index";
 
-import { getPostsSaga, addPostSaga, deletePostSaga, updatePostSaga } from "./sagas";
+import combinedReducers from "./combinedReducers";
+import combinedSagas from "./combinedSagas";
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -15,9 +15,10 @@ const middleware =
         ? compose(applyMiddleware(sagaMiddleware), reduxDevTools)
         : applyMiddleware(sagaMiddleware);
 
-export const store = createStore(rootReducer, compose(middleware, Reactotron.createEnhancer()))
+const store = createStore(combinedReducers, compose(middleware, Reactotron.createEnhancer()))
 
-sagaMiddleware.run(getPostsSaga);
-sagaMiddleware.run(addPostSaga);
-sagaMiddleware.run(updatePostSaga);
-sagaMiddleware.run(deletePostSaga);
+combinedSagas.forEach(saga => {
+  sagaMiddleware.run(saga)
+})
+
+export default store
