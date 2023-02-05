@@ -1,44 +1,47 @@
-import React from 'react'
-import { 
-    Button,
-    TextField 
+import React, { useState } from 'react'
+import { func } from 'prop-types'
+import { v4 as uuidv4 } from 'uuid'
+import {
+  Button,
+  TextField
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles({
-    root: {
-        width: 400,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center'
-    }
+  addPost: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center'
+  }
 })
 
-const AddPost = ({ 
-    handleAddPost, 
-    handleStateChange,
-    state
-}) => {
-    const classes = useStyles()
+const AddPost = ({ onAddPost }) => {
+  const classes = useStyles()
 
-    return (
-        <div className={classes.root}>
-            <TextField
-                fullWidth
-                value={state.text || ''}
-                onChange={(e) => handleStateChange({
-                    ...state,
-                    text: e.target.value
-                })} 
-            />
+  const [text, setText] = useState('')
+
+  const handleStateChange = (text) => {
+    setText(prevstate => ({
+      ...prevstate,
+      text
+    }))
+  }
+
+  return (
+        <div className={classes.addPost}>
+            <TextField onChange={(e) => handleStateChange(e.target.value)} />
             <Button
-                disabled={state.text === ''}
-                onClick={handleAddPost}
+                disabled={text === ''}
+                onClick={(e) => onAddPost(e.target.value, uuidv4())}
             >
                 Adiciona Post
             </Button>
         </div>
-    )
+  )
+}
+
+AddPost.propTypes = {
+  onAddPost: func.isRequired
 }
 
 export default AddPost
